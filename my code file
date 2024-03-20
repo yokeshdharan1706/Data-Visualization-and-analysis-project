@@ -1,0 +1,241 @@
+#Non-graphical analysis on types of each category in netflix
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('netflix.csv')
+
+def unnest_columns(df, columns):
+    for column in columns:
+        df[column] = df[column].str.split(',')
+        df = df.explode(column)
+    return df
+
+#
+columns_to_unnest = ['cast','director']
+
+# Unnest specified columns
+df_unnested = unnest_columns(df, columns_to_unnest)
+
+categorical_columns = ['director', 'cast','country']
+column_value = ['release_year', 'date_added']
+
+# Replace missing values with 'unknown_column_name'
+for column in categorical_columns:
+    df_unnested[column] = df_unnested[column].fillna('Unknown ' + column)
+for columns in column_value:
+    df_unnested[columns]=df_unnested[columns].fillna(0)
+
+
+categorical_columns = ['type','title','director','cast','country','date_added','release_year','rating','duration','listed_in']
+
+# Non-graphical analysis: Value counts of each category for each column
+for column in categorical_columns:
+    print(f"Non-graphical analysis for {column}:")
+    print(df_unnested[column].value_counts())
+    print()
+
+
+Graphical Analysis on types of category
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('netflix.csv')
+df
+
+def unnest_columns(df, columns):
+    for column in columns:
+        df[column] = df[column].str.split(',')
+        df = df.explode(column)
+    return df
+
+# Specify columns to be unnested
+columns_to_unnest = ['cast','director']
+
+# Unnest specified columns
+df_unnested = unnest_columns(df, columns_to_unnest)
+
+plt.figure(figsize=(12,8))
+sns.countplot(x='type' , data=df_unnested)
+plt.title(f"Count of each category in {'type'}")
+plt.xlabel('type')
+plt.ylabel('Count')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability if needed
+plt.show()
+plt.close()
+
+
+Best Week and month to release the TVshow and Movies
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('netflix.csv')
+
+def unnest_columns(df, columns):
+    for column in columns:
+        df[column] = df[column].str.split(',')
+        df = df.explode(column)
+    return df
+
+# Specify columns to be unnested
+columns_to_unnest = ['cast','director']
+
+# Unnest specified columns
+df_unnested = unnest_columns(df, columns_to_unnest)
+
+categorical_columns = ['director', 'cast','country']
+column_value = ['release_year', 'date_added']
+
+# Replace missing values with 'unknown_column_name'
+for column in categorical_columns:
+    df_unnested[column] = df_unnested[column].fillna('Unknown ' + column)
+for columns in column_value:
+    df_unnested[columns]=df_unnested[columns].fillna(0)
+
+df_unnested['date_added'] = pd.to_datetime(df_unnested['date_added'])
+
+# Create a new column for the week number
+df_unnested['Week'] = df_unnested['date_added'].dt.isocalendar().week
+df_unnested['Month']=df_unnested['date_added'].dt.month_name()
+
+# Group by week and count total number of TV shows and movies
+weekly_counts = df_unnested.groupby(['Week', 'type']).size().unstack(fill_value=0)
+monthly_counts = df_unnested.groupby(['Month', 'type']).size().unstack(fill_value=0)
+
+# Find the best week to release TV shows and movies
+best_week_tv = weekly_counts['TV Show'].idxmax()
+best_week_movie = weekly_counts['Movie'].idxmax()
+best_month_tv = monthly_counts['TV Show'].idxmax()
+best_month_movie = monthly_counts['Movie'].idxmax()
+
+print("Best week to release TV Show:", best_week_tv)
+print("Best week to release Movie:", best_week_movie)
+print("Best month to release TV Show:", best_month_tv)
+print("Best month to release Movie:", best_month_movie)
+
+Top 10 Actors and Directors in the TVshows
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('netflix.csv')
+
+def unnest_columns(df, columns):
+    for column in columns:
+        df[column] = df[column].str.split(',')
+        df = df.explode(column)
+    return df
+
+# Specify columns to be unnested
+columns_to_unnest = ['cast','director']
+
+# Unnest specified columns
+df_unnested = unnest_columns(df, columns_to_unnest)
+
+categorical_columns = ['director', 'cast','country']
+column_value = ['release_year', 'date_added']
+
+# Replace missing values with 'unknown_column_name'
+for column in categorical_columns:
+    df_unnested[column] = df_unnested[column].fillna('Unknown ' + column)
+for columns in column_value:
+    df_unnested[columns]=df_unnested[columns].fillna(0)
+
+top_actors = df_unnested.groupby('cast')['title'].nunique().nlargest(10)
+print("Top 10 actors who have appeared in the most movies or TV shows:")
+print(top_actors)
+
+
+top_directors = df_unnested.groupby('director')['title'].nunique().nlargest(10)
+print("\nTop 10 directors who have directed the most movies or TV shows:")
+print(top_directors)
+
+
+word clouding more number of Generes
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('netflix.csv')
+
+def unnest_columns(df, columns):
+    for column in columns:
+        df[column] = df[column].str.split(',')
+        df = df.explode(column)
+    return df
+
+# Specify columns to be unnested
+columns_to_unnest = ['cast','director']
+
+# Unnest specified columns
+df_unnested = unnest_columns(df, columns_to_unnest)
+
+categorical_columns = ['director', 'cast','country']
+column_value = ['release_year', 'date_added']
+
+# Replace missing values with 'unknown_column_name'
+for column in categorical_columns:
+    df_unnested[column] = df_unnested[column].fillna('Unknown ' + column)
+for columns in column_value:
+    df_unnested[columns]=df_unnested[columns].fillna(0)
+
+text= ' '.join(df_unnested['listed_in'])
+wordcloud=WordCloud(width=800, height=400, background_color='white').generate(text)
+
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.title('Word Cloud of Movie Genres')
+plt.axis('off')
+plt.show()
+
+Mode Difference between Date Added and released year
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('netflix.csv')
+
+def unnest_columns(df, columns):
+    for column in columns:
+        df[column] = df[column].str.split(',')
+        df = df.explode(column)
+    return df
+
+# Specify columns to be unnested
+columns_to_unnest = ['cast','director']
+
+# Unnest specified columns
+df_unnested = unnest_columns(df, columns_to_unnest)
+
+categorical_columns = ['director', 'cast','country']
+column_value = ['release_year', 'date_added']
+
+# Replace missing values with 'unknown_column_name'
+for column in categorical_columns:
+    df_unnested[column] = df_unnested[column].fillna('Unknown ' + column)
+for columns in column_value:
+    df_unnested[columns]=df_unnested[columns].fillna(0)
+
+df_unnested['date_added']=pd.to_datetime(df['date_added'])
+df_unnested['no_of_days']= (df_unnested['date_added'] - pd.to_datetime(df_unnested['release_year'], format='%Y')).dt.days
+days_to_be_added = df_unnested.groupby('title')['no_of_days'].agg(lambda x: x.mode()).sort_values()
+print("mode of days between date added and released year:",days_to_be_added)
+
+
+
